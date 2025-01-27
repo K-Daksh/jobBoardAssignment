@@ -27,8 +27,8 @@ const StudentAuth = ({ onClose }) => {
       const loginData = { email, password };
       const registerData = { email, password, fullname: fullName };
       const endpoint = isLogin
-        ? `http://localhost:4000/student/login`
-        : `http://localhost:4000/student/register`;
+        ? `${process.env.VITE_BACKEND_URL}/student/login`
+        : `${process.env.VITE_BACKEND_URL}/student/register`;
       const response = await axios.post(
         endpoint,
         isLogin ? loginData : registerData
