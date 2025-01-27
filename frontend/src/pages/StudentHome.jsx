@@ -3,23 +3,34 @@ import { useStudent } from "../context/StudentContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import Pagination from "../components/Pagination";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const StudentHome = () => {
   const { student, setStudent } = useStudent();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("newJobs");
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    fetchJobs();
+    setCurrentPage(1); // Reset to page 1 when tab changes
+    fetchJobs(1);
   }, [activeTab]);
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (page) => {
+    setLoading(true);
     try {
       const endpoint =
         activeTab === "newJobs"
-          ? `${import.meta.env.VITE_BACKEND_URL}/student/jobs`
-          : `${import.meta.env.VITE_BACKEND_URL}/student/applied-jobs`;
+          ? `${
+              import.meta.env.VITE_BACKEND_URL
+            }/student/jobs?page=${page}&limit=4`
+          : `${
+              import.meta.env.VITE_BACKEND_URL
+            }/student/applied-jobs?page=${page}&limit=4`;
 
       const response = await axios.get(endpoint, {
         headers: {
@@ -27,8 +38,13 @@ const StudentHome = () => {
         },
       });
       setJobs(response.data.jobs);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Error fetching jobs:", error);
+      toast.error("Error fetching jobs");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,6 +84,11 @@ const StudentHome = () => {
   const handleRefresh = () => {
     fetchJobs();
     toast.info("Refreshing jobs...");
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchJobs(page);
   };
 
   const JobCard = ({ job }) => (
@@ -180,11 +201,33 @@ const StudentHome = () => {
               </button>
             )}
           </div>
-          <div className="space-y-4">
-            {jobs.map((job) => (
-              <JobCard key={job._id} job={job} />
-            ))}
-          </div>
+          {loading ? (
+            <LoadingSpinner />
+          ) : (
+            <div>
+              <div className="grid gap-6 mb-8">
+                {jobs.map((job) => (
+                  <JobCard key={job._id} job={job} />
+                ))}
+              </div>
+
+              {jobs.length === 0 && (
+                <div className="text-center text-gray-400 py-8">
+                  {activeTab === "newJobs"
+                    ? "No jobs available at the moment"
+                    : "You haven't applied to any jobs yet"}
+                </div>
+              )}
+
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              )}
+            </div>
+          )}
         </main>
       </div>
       <ToastContainer />

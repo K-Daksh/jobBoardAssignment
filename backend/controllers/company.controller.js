@@ -74,8 +74,29 @@ exports.createJob = async (req, res) => {
 
 exports.getCompanyJobs = async (req, res) => {
     try {
-        const jobs = await jobModel.find({ company: req.company._id });
-        res.status(200).json({ jobs });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 4;
+        const skip = (page - 1) * limit;
+
+        // Get total count for pagination
+        const totalJobs = await jobModel.countDocuments({
+            company: req.company._id
+        });
+
+        // Fetch only the jobs for the current page
+        const jobs = await jobModel.find({ company: req.company._id })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(); // Use lean() for better performance
+
+        res.status(200).json({
+            jobs,
+            currentPage: page,
+            totalPages: Math.ceil(totalJobs / limit),
+            totalJobs,
+            hasMore: page < Math.ceil(totalJobs / limit)
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -189,6 +210,7 @@ exports.sendVerificationOtp = async (req, res) => {
     try {
         const company = req.company;
         const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+
         company.verificationOtp = otp;
         company.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
         await company.save();

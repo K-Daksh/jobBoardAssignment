@@ -4,6 +4,8 @@ import { useCompany } from "../context/CompanyContext";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import ApplicantsModal from "../components/ApplicantsModal";
+import Pagination from "../components/Pagination";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const calendarStyle = `
   [type="date"]::-webkit-calendar-picker-indicator {
@@ -28,25 +30,34 @@ const CompanyHome = () => {
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchJobs();
+    fetchJobs(1); // Always start with page 1
   }, []);
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (page) => {
+    setLoading(true);
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/company/jobs`,
+        `${import.meta.env.VITE_BACKEND_URL}/company/jobs?page=${page}&limit=4`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
+
       setJobs(response.data.jobs);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Error fetching jobs");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,8 +148,17 @@ const CompanyHome = () => {
   };
 
   const handleRefresh = () => {
-    fetchJobs();
+    fetchJobs(currentPage); // Refresh current page
     toast.info("Refreshing jobs list...");
+  };
+
+  const handlePageChange = (page) => {
+    if (page !== currentPage) {
+      setCurrentPage(page);
+      fetchJobs(page);
+      // Scroll to top of job list
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const renderVerificationSection = () => (
@@ -375,11 +395,32 @@ const CompanyHome = () => {
                   Refresh
                 </button>
               </div>
-              <div className="space-y-4">
-                {jobs.map((job) => (
-                  <JobCard key={job._id} job={job} />
-                ))}
-              </div>
+
+              {loading ? (
+                <LoadingSpinner />
+              ) : (
+                <>
+                  <div className="grid gap-6 mb-8">
+                    {jobs.map((job) => (
+                      <JobCard key={job._id} job={job} />
+                    ))}
+                  </div>
+
+                  {jobs.length === 0 ? (
+                    <div className="text-center text-gray-400 py-8">
+                      No jobs posted yet
+                    </div>
+                  ) : (
+                    totalPages > 1 && (
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                      />
+                    )
+                  )}
+                </>
+              )}
             </div>
           )}
         </main>

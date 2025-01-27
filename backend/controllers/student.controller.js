@@ -72,11 +72,27 @@ module.exports.getProfile = async (req, res, next) => {
 
 module.exports.getAppliedJobs = async (req, res) => {
     try {
-        const student = req.student;
-        const appliedJobs = await jobModel.find({
-            _id: { $in: student.appliedJobs }
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 4;
+        const skip = (page - 1) * limit;
+
+        const totalJobs = await jobModel.countDocuments({
+            _id: { $in: req.student.appliedJobs }
         });
-        res.status(200).json({ jobs: appliedJobs });
+
+        const appliedJobs = await jobModel.find({
+            _id: { $in: req.student.appliedJobs }
+        })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({
+            jobs: appliedJobs,
+            currentPage: page,
+            totalPages: Math.ceil(totalJobs / limit),
+            totalJobs
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -84,8 +100,27 @@ module.exports.getAppliedJobs = async (req, res) => {
 
 module.exports.getJobs = async (req, res) => {
     try {
-        const jobs = await jobModel.find({ _id: { $nin: req.student.appliedJobs } });
-        res.status(200).json({ jobs: jobs });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 4; // Changed default to 4
+        const skip = (page - 1) * limit;
+
+        const totalJobs = await jobModel.countDocuments({
+            _id: { $nin: req.student.appliedJobs }
+        });
+
+        const jobs = await jobModel.find({
+            _id: { $nin: req.student.appliedJobs }
+        })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({
+            jobs,
+            currentPage: page,
+            totalPages: Math.ceil(totalJobs / limit),
+            totalJobs
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
