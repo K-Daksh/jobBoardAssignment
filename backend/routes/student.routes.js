@@ -8,35 +8,21 @@ router.post('/register', [
     body('email').isEmail().withMessage('Please enter a valid email'),
     body('fullname').isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
-], (req, res) => {
-    studentController.registerStudent(req, res);
-});
+], studentController.registerStudent);
 
 router.post('/login', [
     body('email').isEmail().withMessage('Please enter a valid email'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
-], (req, res) => {
-    studentController.loginStudent(req, res);
-});
+], studentController.loginStudent);
 
-router.get('/logout', authMiddleware.authStudent, (req, res) => {
-    studentController.logoutStudent(req, res);
-});
+router.get('/logout', authMiddleware.authStudentstudentController.logoutStudent);
 
-router.get('/profile', authMiddleware.authStudent, (req, res) => {
-    studentController.getProfile(req, res);
-});
+router.get('/profile', authMiddleware.authStudent, studentController.getProfile);
 
-router.get('/applied-jobs', authMiddleware.authStudent, (req, res) => {
-    studentController.getAppliedJobs(req, res);
-});
+router.get('/applied-jobs', authMiddleware.authStudent, studentController.getAppliedJobs);
 
-router.post('/apply-job/:jobId', authMiddleware.authStudent, (req, res) => {
-    studentController.applyToJob(req, res);
-});
+router.post('/apply-job/:jobId', authMiddleware.authStudent, studentController.applyToJob);
 
-router.get('/jobs', authMiddleware.authStudent, (req, res) => {
-    studentController.getJobs(req, res);
-});
+router.get('/jobs', authMiddleware.authStudent, studentController.getJobs);
 
 module.exports = router;

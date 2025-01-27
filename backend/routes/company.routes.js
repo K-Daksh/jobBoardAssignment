@@ -4,7 +4,6 @@ const companyController = require('../controllers/company.controller');
 const router = express.Router();
 const authMiddleware = require('../middlewares/auth.middleware');
 
-// Auth routes
 router.post('/register', [
     body('email').isEmail().withMessage('Please enter a valid email'),
     body('companyname').isLength({ min: 3 }).withMessage('Company name must be at least 3 characters long'),
@@ -19,11 +18,11 @@ router.post('/login', [
 
 router.get('/logout', authMiddleware.authCompany, companyController.logoutCompany);
 
-// OTP verification routes
+
 router.post('/send-verification', authMiddleware.authCompany, companyController.sendVerificationOtp);
+
 router.post('/verify-otp', authMiddleware.authCompany, companyController.verifyOtp);
 
-// Job management routes
 router.post('/jobs', authMiddleware.authCompany, [
     body('title').notEmpty().withMessage('Job title is required'),
     body('description').notEmpty().withMessage('Job description is required'),
@@ -41,7 +40,6 @@ router.put('/jobs/:jobId', authMiddleware.authCompany, companyController.updateJ
 
 router.delete('/jobs/:jobId', authMiddleware.authCompany, companyController.deleteJob);
 
-// Company profile routes
 router.get('/profile', authMiddleware.authCompany, companyController.getProfile);
 
 router.put('/profile', authMiddleware.authCompany, companyController.updateProfile);

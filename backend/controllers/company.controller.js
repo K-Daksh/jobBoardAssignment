@@ -5,7 +5,6 @@ const blacklistTokenModel = require('../models/blacklistToken.model');
 const studentModel = require('../models/student.model');
 const companyModel = require('../models/company.model');
 
-// Auth Controllers
 exports.registerCompany = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -58,7 +57,7 @@ exports.logoutCompany = async (req, res) => {
     }
 };
 
-// Job Management Controllers
+
 exports.createJob = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -145,7 +144,6 @@ exports.getJobApplicants = async (req, res) => {
     try {
         const { jobId } = req.params;
 
-        // First verify this job belongs to this company
         const job = await jobModel.findOne({
             _id: jobId,
             company: req.company._id
@@ -154,8 +152,6 @@ exports.getJobApplicants = async (req, res) => {
         if (!job) {
             return res.status(404).json({ message: 'Job not found' });
         }
-
-        // Get all students who have applied to this job
         const applicants = await studentModel.find({
             appliedJobs: jobId
         }, 'fullname email'); // Only fetch required fields
@@ -166,7 +162,6 @@ exports.getJobApplicants = async (req, res) => {
     }
 };
 
-// Company Profile Controllers
 exports.getProfile = async (req, res) => {
     try {
         const company = await companyModel.findById(req.company._id)
@@ -194,8 +189,6 @@ exports.sendVerificationOtp = async (req, res) => {
     try {
         const company = req.company;
         const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
-
-        // Store OTP in company document with expiry
         company.verificationOtp = otp;
         company.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
         await company.save();

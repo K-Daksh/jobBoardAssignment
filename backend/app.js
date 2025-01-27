@@ -26,5 +26,9 @@ app.get('/health', (req, res) => {
     res.status(200).json({ message: 'Server is up and running' });
 });
 
+app.get('/corn-job', (req, res) => {
+    res.status(200).json({ message: 'Corn job is running' });
+});
+
 
 module.exports = app;
