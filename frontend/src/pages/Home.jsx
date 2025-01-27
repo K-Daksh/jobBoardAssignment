@@ -5,7 +5,7 @@ import Modal from "./../components/Modal";
 
 const Home = () => {
   useEffect(() => {
-    console.log("Home page mounted (system log, please ignore)");
+    console.log("Home page mounted (system log, please ignore this)");
   }, []);
 
   const [showCompanyAuth, setShowCompanyAuth] = useState(false);

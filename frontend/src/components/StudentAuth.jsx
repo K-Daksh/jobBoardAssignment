@@ -39,6 +39,7 @@ const StudentAuth = ({ onClose }) => {
       const endpoint = isLogin
         ? `${import.meta.env.VITE_BACKEND_URL}/student/login`
         : `${import.meta.env.VITE_BACKEND_URL}/student/register`;
+
       const response = await axios.post(
         endpoint,
         isLogin ? loginData : registerData
