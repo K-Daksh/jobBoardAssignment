@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CompanyAuth from "./../components/CompanyAuth";
 import StudentAuth from "./../components/StudentAuth";
 import Modal from "./../components/Modal";
 
 const Home = () => {
+  useEffect(() => {
+    console.log("Home page mounted (system log, please ignore)");
+  }, []);
+
   const [showCompanyAuth, setShowCompanyAuth] = useState(false);
   const [showStudentAuth, setShowStudentAuth] = useState(false);
 
