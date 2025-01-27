@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,12 @@ const showToastError = (message) => {
 };
 
 const StudentAuth = ({ onClose }) => {
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/student/dashboard");
+    }
+  }, []);
+
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -24,28 +30,40 @@ const StudentAuth = ({ onClose }) => {
     setLoading(true);
 
     try {
+      if (!email || !password || (!isLogin && !fullName)) {
+        throw new Error("Please fill in all required fields");
+      }
+
       const loginData = { email, password };
       const registerData = { email, password, fullname: fullName };
       const endpoint = isLogin
-        ? `${process.env.VITE_BACKEND_URL}/student/login`
-        : `${process.env.VITE_BACKEND_URL}/student/register`;
+        ? `${import.meta.env.VITE_BACKEND_URL}/student/login`
+        : `${import.meta.env.VITE_BACKEND_URL}/student/register`;
       const response = await axios.post(
         endpoint,
         isLogin ? loginData : registerData
       );
 
-      if (response && response.data && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        showToastSuccess("Authentication successful!");
-        navigate("/student/dashboard");
-        onClose();
+      if (!response || !response.data) {
+        throw new Error("Invalid server response");
       }
+
+      if (!response.data.token) {
+        throw new Error("Authentication token not received");
+      }
+
+      localStorage.setItem("token", response.data.token);
+      showToastSuccess("Authentication successful!");
+      navigate("/student/dashboard");
+      onClose();
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.errors?.[0]?.msg ||
-        "Authentication failed!";
+        err.message ||
+        "An unexpected error occurred";
       showToastError(errorMessage);
+      console.error("Auth Error:", err);
     } finally {
       setLoading(false);
     }

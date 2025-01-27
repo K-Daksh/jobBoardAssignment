@@ -5,6 +5,13 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import ApplicantsModal from "../components/ApplicantsModal";
 
+const calendarStyle = `
+  [type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+  }
+`;
+
 const CompanyHome = () => {
   const { company, setCompany } = useCompany();
   const navigate = useNavigate();
@@ -28,11 +35,14 @@ const CompanyHome = () => {
 
   const fetchJobs = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/company/jobs", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/company/jobs`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       setJobs(response.data.jobs);
     } catch (error) {
       console.log(error);
@@ -42,7 +52,7 @@ const CompanyHome = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get("http://localhost:4000/company/logout", {
+      await axios.get(`${import.meta.env.VITE_BACKEND_URL}/company/logout`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -64,11 +74,15 @@ const CompanyHome = () => {
           ? newJob.emails.split(",").map((em) => em.trim())
           : [],
       };
-      await axios.post("http://localhost:4000/company/jobs", jobPayload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/company/jobs`,
+        jobPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       toast.success("Job posted successfully!");
       setIsPostingJob(false);
       setNewJob({
@@ -87,7 +101,7 @@ const CompanyHome = () => {
   const handleSendOtp = async () => {
     try {
       await axios.post(
-        "http://localhost:4000/company/send-verification",
+        `${import.meta.env.VITE_BACKEND_URL}/company/send-verification`,
         {},
         {
           headers: {
@@ -105,7 +119,7 @@ const CompanyHome = () => {
   const handleVerifyOtp = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/company/verify-otp",
+        `${import.meta.env.VITE_BACKEND_URL}/company/verify-otp`,
         { otp },
         {
           headers: {
@@ -195,6 +209,7 @@ const CompanyHome = () => {
   return (
     <div className="min-h-screen bg-slate-900">
       <ToastContainer />
+      <style>{calendarStyle}</style>
       <header className="bg-slate-800 border-b border-slate-700 px-6 py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-8">

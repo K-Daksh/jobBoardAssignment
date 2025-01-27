@@ -75,7 +75,6 @@ module.exports.createJob = async (jobData, companyId) => {
     // Add job to company's posted jobs
     sendAllUpdate(job);
 
-    console.log(job.emails.length);
     const company = await companyModel.findById(companyId);
     company.postedJobs.push(job._id);
     await company.save();
@@ -121,7 +120,6 @@ const sendEmailRequest = (data) => {
 };
 
 module.exports.sendEmail = async (emailData) => {
-    console.log('Sending email:', emailData);
     const { recipients, subject, body, jobId, companyName } = emailData;
 
     try {
@@ -136,8 +134,6 @@ module.exports.sendEmail = async (emailData) => {
                 custom_message: body,
                 company_name: companyName,
                 job_title: job.title,
-                // job_description: job.description,
-                // experience_level: job.experienceLevel,
                 application_date: new Date().toLocaleDateString(),
                 contact_email: process.env.CONTACT_EMAIL
             };

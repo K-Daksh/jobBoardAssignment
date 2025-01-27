@@ -17,14 +17,13 @@ const StudentProtectedWrapper = ({ children }) => {
     const fetchStudent = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:4000/student/profile",
+          `${import.meta.env.VITE_BACKEND_URL}/student/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        console.log(response.data);
         setStudent(response.data.student);
       } catch (err) {
         console.error(err);

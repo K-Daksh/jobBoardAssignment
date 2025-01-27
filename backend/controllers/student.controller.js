@@ -18,7 +18,6 @@ module.exports.registerStudent = async (req, res, next) => {
         const hashedPassword = await studentModel.hashPassword(password);
         const student = await studentService.createStudent({ fullname, email, password: hashedPassword });
         const token = student.generateAuthToken();
-        console.log(token);
         return res.status(201).json({ token });
     } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -47,7 +46,6 @@ module.exports.loginStudent = async (req, res, next) => {
     const token = user.generateAuthToken();
 
     res.cookie('token', token);
-    console.log(user);
 
     res.status(200).json({ user: user, token: token });
 }
@@ -96,6 +94,19 @@ module.exports.getJobs = async (req, res) => {
 module.exports.applyToJob = async (req, res) => {
     try {
         const jobId = req.params.jobId;
+        if (!jobId) {
+            return res.status(400).json({ message: 'Job ID is required' });
+        }
+
+        const job = await jobModel.findById(jobId);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        if (job.endDate && new Date(job.endDate) < new Date()) {
+            return res.status(400).json({ message: 'Job application deadline has passed' });
+        }
+
         const student = req.student;
 
         // Check if already applied
@@ -108,16 +119,17 @@ module.exports.applyToJob = async (req, res) => {
         await student.save();
 
         // Add student's email to job's candidates
-        const job = await jobModel.findById(jobId);
-        if (!job) {
-            return res.status(404).json({ message: 'Job not found' });
-        }
-
         job.candidates.push(student.email);
         await job.save();
 
         res.status(200).json({ message: 'Successfully applied to job' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid job ID format' });
+        }
+        return res.status(500).json({
+            message: 'Internal server error',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 };

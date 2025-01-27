@@ -17,7 +17,7 @@ const CompanyProtectedWrapper = ({ children }) => {
     const fetchCompany = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:4000/company/profile",
+          `${import.meta.env.VITE_BACKEND_URL}/company/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

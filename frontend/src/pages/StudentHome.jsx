@@ -18,8 +18,8 @@ const StudentHome = () => {
     try {
       const endpoint =
         activeTab === "newJobs"
-          ? "http://localhost:4000/student/jobs"
-          : "http://localhost:4000/student/applied-jobs";
+          ? `${import.meta.env.VITE_BACKEND_URL}/student/jobs`
+          : `${import.meta.env.VITE_BACKEND_URL}/student/applied-jobs`;
 
       const response = await axios.get(endpoint, {
         headers: {
@@ -34,7 +34,7 @@ const StudentHome = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get("http://localhost:4000/student/logout", {
+      await axios.get(`${import.meta.env.VITE_BACKEND_URL}/student/logout`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -50,7 +50,7 @@ const StudentHome = () => {
   const handleApply = async (jobId) => {
     try {
       await axios.post(
-        `http://localhost:4000/student/apply-job/${jobId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/student/apply-job/${jobId}`,
         {},
         {
           headers: {

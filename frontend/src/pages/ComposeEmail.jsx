@@ -13,7 +13,6 @@ const ComposeEmail = () => {
   useEffect(() => {
     const { recipients, job } = location.state || {};
     setJobInfo(job);
-    console.log("recipients", recipients);
     setRecipients(recipients);
   }, [location]);
 
@@ -44,7 +43,7 @@ const ComposeEmail = () => {
     setSending(true);
     try {
       await axios.post(
-        "http://localhost:4000/company/send-email",
+        `${import.meta.env.VITE_BACKEND_URL}/company/send-email`,
         emailBodyData,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -127,7 +126,6 @@ const ComposeEmail = () => {
 
             <button
               onClick={() => {
-                console.log("handleSend");
                 handleSend();
               }}
               disabled={sending}

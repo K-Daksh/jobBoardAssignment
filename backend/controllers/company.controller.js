@@ -210,7 +210,6 @@ exports.sendVerificationOtp = async (req, res) => {
 exports.verifyOtp = async (req, res) => {
     try {
         const company = req.company;
-        console.log(company)
         const { otp } = req.body;
 
         const fetchedCompany = await companyModel.findById(company._id).select('verificationOtp');
@@ -238,7 +237,6 @@ exports.verifyOtp = async (req, res) => {
 exports.sendEmail = async (req, res) => {
     try {
         const company = req.company;
-        console.log(company)
         const body = {
             recipients: req.body.recipients,
             subject: req.body.subject,

@@ -21,7 +21,9 @@ const ApplicantsModal = ({ job, onClose }) => {
   const fetchApplicants = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/company/jobs/${job._id}/applicants`,
+        `${import.meta.env.VITE_BACKEND_URL}/company/jobs/${
+          job._id
+        }/applicants`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -55,7 +57,7 @@ const ApplicantsModal = ({ job, onClose }) => {
   const handleSendEmail = async () => {
     try {
       await axios.post(
-        "http://localhost:4000/company/send-email",
+        `${import.meta.env.VITE_BACKEND_URL}/company/send-email`,
         {
           recipients: selectedApplicants,
           subject: emailData.subject,

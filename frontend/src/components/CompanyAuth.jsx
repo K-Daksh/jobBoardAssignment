@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -14,14 +14,20 @@ const CompanyAuth = ({ onClose }) => {
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/company/dashboard");
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       const endpoint = isLogin
-        ? "http://localhost:4000/company/login"
-        : "http://localhost:4000/company/register";
+        ? `${import.meta.env.VITE_BACKEND_URL}/company/login`
+        : `${import.meta.env.VITE_BACKEND_URL}/company/register`;
       const data = isLogin
         ? { email, password }
         : { email, password, companyname: companyName, mobile };

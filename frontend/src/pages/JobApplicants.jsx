@@ -20,12 +20,19 @@ const JobApplicants = () => {
   const fetchJobAndApplicants = async () => {
     try {
       const [jobRes, applicantsRes] = await Promise.all([
-        axios.get(`http://localhost:4000/company/jobs/${jobId}`, {
+        axios.get(`${import.meta.env.VITE_BACKEND_URL}/company/jobs/${jobId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }),
-        axios.get(`http://localhost:4000/company/jobs/${jobId}/applicants`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }),
+        axios.get(
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/company/jobs/${jobId}/applicants`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        ),
       ]);
       setJob(jobRes.data.job);
       setApplicants(applicantsRes.data.applicants);
@@ -50,7 +57,6 @@ const JobApplicants = () => {
       toast.error("Please select at least one applicant");
       return;
     }
-    console.log(job);
     navigate("/company/compose-email", {
       state: {
         recipients: selectedApplicants,
