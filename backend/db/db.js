@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const DEFAULT_URI = 'mongodb://127.0.0.1:27017/jobBoardLocal';
-const uri = process.env.DB_CONNECT || DEFAULT_URI;
+const URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_CONTEXT_URL}`
 
 function connectToDb() {
-    mongoose.connect(uri
-    ).then(() => {
-        console.log('Connected to DB');
-    }).catch(err => console.log(err));
+    mongoose.connect(URI)
+        .then(() => {
+            console.log('Connected to uberdb database');
+        })
+        .catch((error) => {
+            console.log('Error:', error);
+        });
 }
 
 module.exports = connectToDb;
